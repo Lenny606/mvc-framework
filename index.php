@@ -23,9 +23,13 @@ spl_autoload_register(function (string $class){
 });
 
 $router = new Framework\Router();
+
+$router->add('/product/{slug:[\w-]+}', ['controller' => 'products', 'action' => 'show']);
+$router->add('/{controller}/{id:\d+}/{action}');
 $router->add('/', ['controller' => 'homepage', 'action' => 'index']);
 $router->add('/homepage/index', ['controller' => 'homepage', 'action' => 'index']);
 $router->add('/products', ['controller' => 'products', 'action' => 'index']);
+$router->add('/{controller}/{action}');
 
 //matches stripped path with added routes
 $params = $router->match($path);
