@@ -1,0 +1,3 @@
+RewriteEngine On
+#always use index.php no matter the url
+RewriteRule ^ index.php
