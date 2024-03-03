@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Model\Product;
+use Framework\Viewer;
 
 class  ProductsController
 {
@@ -12,17 +13,17 @@ class  ProductsController
         $newModel = new Product();
         $products = $newModel->getProducts();
 
-        require "./views/products_index.php";
+        //loads content before rendering with viewer
+        $viewer = new Viewer();
+        echo $viewer->render("shared/header.php", ["title" => "Products"]);
+       echo $viewer->render("Products/index.php", ["products" => $products]);
     }
 
-    public function show()
+    public function show(string $id)
     {
-//        require "./src/Model/Product.php";
-
-        $newModel = new Product();
-        $products = $newModel->getProducts();
-
-        require "./views/products_show.php";
+        $viewer = new Viewer();
+        echo $viewer->render("shared/header.php", ["title" => "Product $id"]);
+        echo $viewer->render("Products/show.php", ["id" => $id]);
     }
 
     public function showPage(string $title, string $id, string $page){

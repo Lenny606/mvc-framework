@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>
-        MVC
-    </title>
-    <meta charset="UTF-8">
-</head>
-<body>
+
 <h1>
     PRODUCTS
 </h1>

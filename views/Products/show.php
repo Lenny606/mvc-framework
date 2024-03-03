@@ -1,14 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>
-        MVC
-    </title>
-    <meta charset="UTF-8">
-</head>
-<body>
+
 <h1>
-    HOME
+    PRODUCT <?= $id ?>
 </h1>
 <?php //foreach ($products as $product): ?>
 <!--    <h2>--><?php //= htmlspecialchars($product["name"]) ?><!--</h2>-->
