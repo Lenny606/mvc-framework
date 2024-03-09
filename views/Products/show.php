@@ -1,10 +1,8 @@
 
 <h1>
-    PRODUCT <?= $id ?>
+    <?= $product["name"] ?>
 </h1>
-<?php //foreach ($products as $product): ?>
-<!--    <h2>--><?php //= htmlspecialchars($product["name"]) ?><!--</h2>-->
-<!--    <p>--><?php //= htmlspecialchars($product["description"]) ?><!--</p>-->
-<?php //endforeach; ?>
+    <p><?= htmlspecialchars($product["description"]) ?></p>
+
 </body>
 </html>
