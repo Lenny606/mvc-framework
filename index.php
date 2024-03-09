@@ -1,46 +1,21 @@
 <?php
 declare(strict_types=1);
 
+//using ROUTER
+
+spl_autoload_register(function (string $class) {
+
+    $class = str_replace('\\', "/", $class);
+    require "./src/$class.php";
+});
+
 //converts errors to exceptions for production
-set_error_handler(function (
-    int    $errno,
-    string $errstr,
-    string $errfile,
-    int    $errline
-): bool {
-    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-});
+set_error_handler("Framework\ErrorHandler::handleError");
+set_exception_handler("Framework\ErrorHandler::handleException");
 
-set_exception_handler(function (Throwable $exception) {
-    $show_error_details = false;
-
-    if ($exception instanceof \Framework\Exceptions\PageNotFoundException) {
-        http_response_code(404);
-        $template = "404.php";
-    } else {
-        http_response_code(500);
-        $template = "500.php";
-
-    }
-
-    if (!$show_error_details) {
-        //no errors messages details are generated for users
-        ini_set('display_errors', "0");
-
-        //turn on logging - is by default
-        ini_set('log_errors', "1");
-        //path to log files on server
-//    echo ini_get('error_log');
-
-        require "./views/shared/{$template}";
-    } else {
-        // details on
-        ini_set('display_errors', "1");
-    }
-
-    throw $exception;
-});
-
+//loads env variables
+$dotenv = new \Framework\Dotenv();
+$dotenv->loadEnvironmentVariables(".env");
 
 //simple routing using non pretty url, refactor
 //$action = $_GET['action'];
@@ -48,6 +23,7 @@ set_exception_handler(function (Throwable $exception) {
 
 //grab params from pretty url...refactored to router below
 use Framework\Dispatcher;
+use Framework\ErrorHandler;
 
 $path = $_SERVER['REQUEST_URI'];
 //strip url from query params if present to have /Controller/action format
@@ -63,32 +39,9 @@ if (!$path) {
 $controller = $path[1];
 $action = $path[2];
 
-//using ROUTER
-
-spl_autoload_register(function (string $class) {
-
-    $class = str_replace('\\', "/", $class);
-    require "./src/$class.php";
-});
-
-$router = new Framework\Router();
-
-$router->add("/admin/{controller}/{action}", ['namespace' => 'Admin']);  //Admin routes
-
-$router->add('/{title}/{id:\d+}/{page:\d+}', ['controller' => 'products', 'action' => 'showPage']);
-$router->add('/product/{slug:[\w-]+}', ['controller' => 'products', 'action' => 'show']);
-$router->add('/{controller}/{id:\d+}/{action}');
-$router->add('/', ['controller' => 'homepage', 'action' => 'index']);
-$router->add('/homepage/index', ['controller' => 'homepage', 'action' => 'index']);
-$router->add('/products', ['controller' => 'products', 'action' => 'index']);
-$router->add('/{controller}/{action}');
-
-
-$container = new \Framework\Container();
-$database = new App\Database("localhost", "product_db", "root");
-
-//binding the value of the class to the service container as a function
-$container->set(App\Database::class, fn() => $database);
+//for better readability assign to variables
+$router = require "./config/routes.php";
+$container = require "./config/services.php";
 
 $dispatch = new Dispatcher($router, $container);
 $dispatch->handle($path);
