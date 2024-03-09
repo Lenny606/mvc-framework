@@ -1,21 +1,22 @@
 <?php
 declare(strict_types=1);
 
-//using ROUTER
+define('ROOT_PATH', dirname(__DIR__));
 
+//using ROUTE
 spl_autoload_register(function (string $class) {
 
     $class = str_replace('\\', "/", $class);
-    require "./src/$class.php";
+    require ROOT_PATH . "/src/$class.php";
 });
+
+//loads env variables
+$dotenv = new \Framework\Dotenv();
+$dotenv->loadEnvironmentVariables(ROOT_PATH . "/.env");
 
 //converts errors to exceptions for production
 set_error_handler("Framework\ErrorHandler::handleError");
 set_exception_handler("Framework\ErrorHandler::handleException");
-
-//loads env variables
-$dotenv = new \Framework\Dotenv();
-$dotenv->loadEnvironmentVariables(".env");
 
 //simple routing using non pretty url, refactor
 //$action = $_GET['action'];
@@ -40,8 +41,8 @@ $controller = $path[1];
 $action = $path[2];
 
 //for better readability assign to variables
-$router = require "./config/routes.php";
-$container = require "./config/services.php";
+$router = require ROOT_PATH . "/config/routes.php";
+$container = require ROOT_PATH . "/config/services.php";
 
 $dispatch = new Dispatcher($router, $container);
 $dispatch->handle($path);

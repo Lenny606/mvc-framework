@@ -32,6 +32,8 @@ class ErrorHandler
 
         }
 
+
+
         if (!$_ENV["SHOW_ERRORS"]) {
             //no errors messages details are generated for users
             ini_set('display_errors', "0");
@@ -39,9 +41,9 @@ class ErrorHandler
             //turn on logging - is by default
             ini_set('log_errors', "1");
             //path to log files on server
-//    echo ini_get('error_log');
+            //echo ini_get('error_log');
 
-            require "./views/shared/{$template}";
+            require __DIR__ . "/../../views/shared/{$template}";
         } else {
             // details on
             ini_set('display_errors', "1");

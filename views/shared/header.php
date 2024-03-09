@@ -5,5 +5,6 @@
         <?php echo $title ?>
     </title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="/public/styles.css">
 </head>
 <body>

@@ -11,7 +11,7 @@ class Viewer
 
         //buffers the template and return all content
         ob_start();
-        require "./views/$template";
+        require __DIR__ . "/../../views/$template";
 
         return ob_get_clean();
     }
