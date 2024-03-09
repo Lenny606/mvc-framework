@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 //simple routing using non pretty url, refactor
 //$action = $_GET['action'];
 //$Controller = $_GET['Controller'];
@@ -38,7 +38,13 @@ $router->add('/{controller}/{action}');
 
 
 
-$dispatch = new Dispatcher($router);
+$container = new \Framework\Container();
+$database = new App\Database("localhost", "product_db", "root");
+
+//binding the value of the class to the service container as a function
+$container->set(App\Database::class,fn() => $database);
+
+$dispatch = new Dispatcher($router, $container);
 $dispatch->handle($path);
 
 

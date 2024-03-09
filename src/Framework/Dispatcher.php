@@ -7,7 +7,9 @@ use App\Model\Product;
 class Dispatcher
 {
 
-    public function __construct(private Router $router)
+    public function __construct(
+        private Router $router,
+    private Container $container)
     {
 
     }
@@ -22,7 +24,7 @@ class Dispatcher
         $action = $this->getActionName($params);
         $controller = $this->getControllerName($params);
 
-        $controller_object = $this->getObject($controller);
+        $controller_object = $this->container->get($controller);
 
 //        if ($controller === "products") {
 //            require "./src/App/Controller/ProductsController.php";
@@ -76,29 +78,5 @@ class Dispatcher
         return $action;
     }
 
-    private function getObject(string $className): object
-    {
-        //cheking if class has dependencies in constructor with reflection class
-        //depedencies can have dependencies, need to use recursive to find all dependencies
-        $reflector = new \ReflectionClass($className);
-        $constructor = $reflector->getConstructor();
 
-        $dependencies = [];
-
-        //basecase for recursive functions
-        if ($constructor === null) {
-            return new $className;
-        }
-
-        foreach ($constructor->getParameters() as $parameter) {
-
-            //returns fully qualified name of the class
-            $type = (string)$parameter->getType();
-            //uses recursive method
-            $dependencies[] = $this->getObject($type);
-
-        }
-        //passes dependencies - AUTOWIRING
-        return new $className(...$dependencies);
-    }
 }
