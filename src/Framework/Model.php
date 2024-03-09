@@ -9,8 +9,28 @@ abstract class Model
 {
     protected $tableName;
 
+    protected array $errors = [];
+
+    protected function validate(array $data): void
+    {}
+
+    public function getInsertId() : string
+    {
+        $pdo = $this->database->getConnection();
+        return $pdo->lastInsertId();
+    }
     public function __construct(private Database $database)
     {
+    }
+
+    protected function addError(string $name, string $message)
+    {
+        $this->errors[$name] = $message;
+    }
+
+    public function getError(): array
+    {
+        return $this->errors;
     }
 
     private function getTableName(): string
@@ -47,5 +67,41 @@ abstract class Model
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
 
+    }
+
+    public function create(array $data): bool
+    {
+        $this->validate($data);
+
+        if(!empty($this->errors)){
+            return false;
+        };
+
+        $columns = implode(',', array_keys($data));
+        $placeholders = implode(',', array_fill(0, count($data), "?"));
+
+        $pdo = $this->database->getConnection();
+        $sql = "INSERT INTO {$this->getTableName()}
+                ($columns)
+                VALUES ( $placeholders )";
+        $stmt = $pdo->prepare($sql);
+
+        $i = 1;
+        foreach ($data as $value) {
+
+            $type = match (gettype($value)) {
+                "boolean" => PDO::PARAM_BOOL,
+                "integer" => PDO::PARAM_INT,
+                'NULL' => PDO::PARAM_NULL,
+                default => PDO::PARAM_STR
+            };
+
+            $stmt->bindValue($i++, $value, $type);
+        }
+
+        $stmt->bindValue(1, $data['name'], PDO::PARAM_STR);
+        $stmt->bindValue(2, $data['description'], PDO::PARAM_STR);
+
+        return $stmt->execute();
     }
 }

@@ -1,6 +1,9 @@
 <h1>
     PRODUCTS
 </h1>
+
+<a href="/products/new">New product</a>
+
 <?php foreach ($products as $product): ?>
     <h2>
         <a href="/products/<?= $product['id'] ?>/show">

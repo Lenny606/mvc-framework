@@ -10,7 +10,7 @@ class  ProductsController
 {
 
     public function __construct(
-        private Viewer $viewer,
+        private Viewer  $viewer,
         private Product $newModel
     )
     {
@@ -40,5 +40,28 @@ class  ProductsController
     public function showPage(string $title, string $id, string $page)
     {
         echo "$title, $id, $page";
+    }
+
+
+    public function new()
+    {
+        echo $this->viewer->render("shared/header.php", ["title" => "New Product"]);
+        echo $this->viewer->render("Products/new.php", []);
+    }
+
+    public function create()
+    {
+        $data = [
+            "name" => $_POST["name"],
+            "description" => empty($_POST["description"]) ? null : $_POST["description"],
+        ];
+
+        if ($this->newModel->create($data)) {
+            header("Location: /products/{$this->newModel->getInsertId()}/show");
+            exit;
+        } else {
+            echo $this->viewer->render("shared/header.php", ["title" => "New Product"]);
+            echo $this->viewer->render("Products/new.php", ['errors' => $this->newModel->getError()]);
+        }
     }
 }
