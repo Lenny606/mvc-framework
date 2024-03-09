@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Framework;
 
 use Closure;
+use Exception;
+use http\Exception\InvalidArgumentException;
 use ReflectionNamedType;
 
 class Container
@@ -21,6 +23,10 @@ class Container
         $this->registry[$name] = $value;
     }
 
+    /**
+     * @throws \ReflectionException
+     * @throws Exception
+     */
     public function get(string $className): object
     {
         //cheking if class has dependencies in constructor with reflection class
@@ -48,19 +54,20 @@ class Container
             $type = $parameter->getType();
 
             if ($type === null) {
-                exit("Constructor parameter {$parameter->getName()} in the $className is an invalid type $type");
+                throw new InvalidArgumentException("Constructor parameter {$parameter->getName()} in the $className is an invalid type $type");
             }
 
             //check for instance of reflection class - only one is allowed, no unions for simplicity
             if (!($type instanceof ReflectionNamedType)) {
-                exit("Constructor parameter {$parameter->getName()} in the $className has no declaration");
+                throw new InvalidArgumentException(
+                    "Constructor parameter {$parameter->getName()} in the $className has no declaration");
             }
 
 
             //check if type is class or string fe with builtin methods of Reflection class
             //which is returnend by GetType method
             if ($type->isBuiltin()) {
-                exit("Unable to resolve parameter {$parameter->getName()} of type {$type} in the $className");
+                throw new InvalidArgumentException("Unable to resolve parameter {$parameter->getName()} of type {$type} in the $className");
             }
             //uses recursive method
             $dependencies[] = $this->get((string)$type);

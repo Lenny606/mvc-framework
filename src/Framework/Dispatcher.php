@@ -3,6 +3,7 @@
 namespace Framework;
 
 use App\Model\Product;
+use Framework\Exceptions\PageNotFoundException;
 
 class Dispatcher
 {
@@ -19,7 +20,7 @@ class Dispatcher
 //matches stripped path with added routes
         $params = $this->router->match($path);
         if (!$params) {
-            exit('No route matched');
+            throw new PageNotFoundException('No route matched');
         }
         $action = $this->getActionName($params);
         $controller = $this->getControllerName($params);
