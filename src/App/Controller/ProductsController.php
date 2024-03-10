@@ -38,8 +38,8 @@ class  ProductsController extends Controller
     {
         $product = $this->getProduct($id);
 
-        echo $this->viewer->render("shared/header.php", ["title" => "Product $id"]);
-        echo $this->viewer->render("Products/show.php", ["id" => $id, "product" => $product]);
+      //  echo $this->viewer->render("shared/header.php", ["title" => "Product $id"]);
+        echo $this->viewer->render("Products/show.mvc.php", ["id" => $id, "product" => $product]);
     }
 
     public function showPage(string $title, string $id, string $page)
@@ -50,8 +50,8 @@ class  ProductsController extends Controller
 
     public function new()
     {
-        echo $this->viewer->render("shared/header.php", ["title" => "New Product"]);
-        echo $this->viewer->render("Products/new.php", []);
+       // echo $this->viewer->render("shared/header.php", ["title" => "New Product"]);
+        echo $this->viewer->render("Products/new.mvc.php", ["title" => "New Product"]);
     }
 
     public function create()
@@ -65,8 +65,9 @@ class  ProductsController extends Controller
             header("Location: /products/{$this->newModel->getInsertId()}/show");
             exit;
         } else {
-            echo $this->viewer->render("shared/header.php", ["title" => "New Product"]);
-            echo $this->viewer->render("Products/new.php", [
+          //  echo $this->viewer->render("shared/header.php", ["title" => "New Product"]);
+            echo $this->viewer->render("Products/new.mvc.php", [
+                "title" => "New Product",
                 'errors' => $this->newModel->getError(),
                 'product' => $data
             ]);
@@ -77,8 +78,8 @@ class  ProductsController extends Controller
     {
         $product = $this->getProduct($id);
 
-        echo $this->viewer->render("shared/header.php", ["title" => "Edit Product $id"]);
-        echo $this->viewer->render("Products/edit.php", ["id" => $id, "product" => $product]);
+      //  echo $this->viewer->render("shared/header.php", ["title" => "Edit Product $id"]);
+        echo $this->viewer->render("Products/edit.mvc.php", ["id" => $id, "product" => $product]);
     }
 
     public function update($id)
@@ -92,8 +93,8 @@ class  ProductsController extends Controller
             header("Location: /products/{$id}/show");
             exit;
         } else {
-            echo $this->viewer->render("shared/header.php", ["title" => "Edit Product"]);
-            echo $this->viewer->render("Products/edit.php", [
+//            echo $this->viewer->render("shared/header.php", ["title" => "Edit Product"]);
+            echo $this->viewer->render("Products/edit.mvc.php", [
                 'errors' => $this->newModel->getError(),
                 'product' => $product
             ]);
@@ -111,8 +112,8 @@ class  ProductsController extends Controller
     {
         $product = $this->getProduct($id);
 
-        echo $this->viewer->render("shared/header.php", ["title" => "Delete Product"]);
-        echo $this->viewer->render("Products/delete.php", [
+       // echo $this->viewer->render("shared/header.php", ["title" => "Delete Product"]);
+        echo $this->viewer->render("Products/delete.mvc.php", [
             'errors' => $this->newModel->getError(),
             'product' => $product
         ]);

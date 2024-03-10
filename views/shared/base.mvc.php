@@ -13,8 +13,6 @@
     PRODUCTS
 </h1>
 
-<a href="/products/new">New product</a>
-<p>{{ total }} product found </p>
 
 {% yield body %}
 

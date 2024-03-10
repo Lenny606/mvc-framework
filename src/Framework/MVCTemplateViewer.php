@@ -6,7 +6,7 @@ class MVCTemplateViewer implements TemplateViewerInterface
 {
     public function render(string $template, array $data = []): string
     {
-        $views_directory = dirname(__DIR__,2) . "/views/";
+        $views_directory = dirname(__DIR__, 2) . "/views/";
 
         $code = file_get_contents($views_directory . "$template");
 
@@ -16,6 +16,9 @@ class MVCTemplateViewer implements TemplateViewerInterface
             $blocks = $this->getBlock($code);
             $code = $this->replaceYields($base, $blocks);
         }
+
+        //includes should go first
+        $code = $this->loadIncludes($views_directory, $code);
 
         //php code for execution
         $code = $this->replaceVariables($code);
@@ -33,40 +36,53 @@ class MVCTemplateViewer implements TemplateViewerInterface
         return ob_get_clean();
     }
 
-    private function replaceVariables(string $code) : string
+    private function replaceVariables(string $code): string
     {
-        return preg_replace('#{{\s*(\S+)\s*}}#', "<?= htmlspecialchars(\$$1) ?>", $code);
+        return preg_replace('#{{\s*(\S+)\s*}}#', "<?= htmlspecialchars(\$$1 ?? '') ?>", $code);
     }
 
-    private function replacePHP(string $code) : string
+    private function replacePHP(string $code): string
     {
         return preg_replace('#{%\s*(.+)\s*%}#', "<?php $1 ?>", $code);
     }
 
-    private function getBlock(string $code) : array
+    private function getBlock(string $code): array
     {
         preg_match_all("#{% block (?<name>\w+) %}(?<content>.*?){% endblock %}#s", $code, $matches, PREG_SET_ORDER);
 
         $blocks = array();
 
-        foreach ($matches as $match){
+        foreach ($matches as $match) {
             $blocks[$match["name"]] = $match["content"];
         }
 
         return $blocks;
     }
 
-    private function replaceYields(string $code, array $blocks) : string
+    private function replaceYields(string $code, array $blocks): string
     {
         preg_match_all("#{% yield (?<name>\w+) %}#", $code, $matches, PREG_SET_ORDER);
 
-        foreach ($matches as $match){
-           $name = $match["name"];
-           $block = $blocks[$name];
+        foreach ($matches as $match) {
+            $name = $match["name"];
+            $block = $blocks[$name];
 
-           $code = preg_replace("#{% yield $name %}#", $block, $code);
+            $code = preg_replace("#{% yield $name %}#", $block, $code);
         }
 
+        return $code;
+    }
+
+    private function loadIncludes(string $dir, string $code) : string
+    {
+        preg_match_all('#{% include "(?<template>.*?)" %}#', $code, $matches, PREG_SET_ORDER);
+
+        foreach ($matches as $match) {
+            $template = $match["template"];
+            $content = file_get_contents($dir . $template);
+
+            $code = preg_replace("#{% include \"$template\" %}#", $content, $code);
+        }
         return $code;
     }
 }
