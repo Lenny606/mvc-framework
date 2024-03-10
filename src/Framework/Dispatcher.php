@@ -4,28 +4,32 @@ namespace Framework;
 
 use App\Model\Product;
 use Framework\Exceptions\PageNotFoundException;
+use UnexpectedValueException;
 
 class Dispatcher
 {
 
     public function __construct(
-        private Router $router,
-    private Container $container)
+        private Router    $router,
+        private Container $container)
     {
 
     }
 
-    public function handle(string $path, string $method)
+    public function handle(Request $request)
     {
+        $path = $this->getPath($request->uri);
 //matches stripped path with added routes
-        $params = $this->router->match($path, $method);
+        $params = $this->router->match($path, $request->method);
         if (!$params) {
-            throw new PageNotFoundException('No route matched');
+            throw new PageNotFoundException('No route matched for ' .$path . " with ". $request->method);
         }
         $action = $this->getActionName($params);
         $controller = $this->getControllerName($params);
 
         $controller_object = $this->container->get($controller);
+
+        $controller_object->setRequest($request);
 
 //        if ($controller === "products") {
 //            require "./src/App/Controller/ProductsController.php";
@@ -77,6 +81,19 @@ class Dispatcher
         $action = lcfirst(str_replace("-", "", $action,));
 
         return $action;
+    }
+
+    public function getPath(string $uri): string
+    {
+        //strip url from query params if present to have /Controller/action format
+        $path = parse_url($uri, PHP_URL_PATH);
+        if (!$path) {
+            throw new UnexpectedValueException(
+                "Malformed url $uri"
+            );
+        }
+
+        return $path;
     }
 
 
