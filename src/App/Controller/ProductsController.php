@@ -3,20 +3,17 @@
 namespace App\Controller;
 
 use App\Model\Product;
+use Framework\Controller;
 use Framework\Exceptions\PageNotFoundException;
 use Framework\Request;
-use Framework\Viewer;
+use Framework\PHPTemplateViewer;
 
-class  ProductsController
+class  ProductsController extends Controller
 {
 
-    private Request $request;
 
-    public function setRequest(Request $request){
-        $this->request = $request;
-    }
     public function __construct(
-        private Viewer  $viewer,
+//        private PHPTemplateViewer  $viewer,
         private Product $newModel
     )
     {

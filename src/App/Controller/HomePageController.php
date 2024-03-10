@@ -2,14 +2,16 @@
 
 namespace App\Controller;
 
-use Framework\Viewer;
+use Framework\Controller;
+use Framework\PHPTemplateViewer;
 
-class HomePageController
+class HomePageController extends Controller
 {
     public function index()
     {
-        $viewer = new Viewer();
-        echo $viewer->render("shared/header.php", ["title" => "Home"]);
-        echo $viewer->render("Home/homepage.php");
+        //instead object set PHPTemplateViewer in front controller
+//        $viewer = new PHPTemplateViewer();
+        echo $this->viewer->render("shared/header.php", ["title" => "Home"]);
+        echo $this->viewer->render("Home/homepage.php");
     }
 }
