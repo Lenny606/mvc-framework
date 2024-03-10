@@ -26,8 +26,9 @@ class  ProductsController extends Controller
 
         //loads content before rendering with viewer
 
-        echo $this->viewer->render("shared/header.php", ["title" => "Products"]);
-        echo $this->viewer->render("Products/index.php", [
+//        echo $this->viewer->render("shared/header.php", );
+        echo $this->viewer->render("Products/index.mvc.php", [
+            "title" => "Products",
             "products" => $products,
             "total" => $this->newModel->getTotalCount()
         ]);
