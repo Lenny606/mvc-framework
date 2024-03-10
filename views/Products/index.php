@@ -3,6 +3,7 @@
 </h1>
 
 <a href="/products/new">New product</a>
+<p><?= htmlspecialchars($total)?> product found </p>
 
 <?php foreach ($products as $product): ?>
     <h2>

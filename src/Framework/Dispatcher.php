@@ -15,10 +15,10 @@ class Dispatcher
 
     }
 
-    public function handle(string $path)
+    public function handle(string $path, string $method)
     {
 //matches stripped path with added routes
-        $params = $this->router->match($path);
+        $params = $this->router->match($path, $method);
         if (!$params) {
             throw new PageNotFoundException('No route matched');
         }

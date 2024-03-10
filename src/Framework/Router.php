@@ -14,7 +14,7 @@ class Router
         ];
     }
 
-    public function match(string $path): array|bool
+    public function match(string $path, string $method): array|bool
     {
         $path = trim($path, '/');
 
@@ -31,6 +31,14 @@ class Router
                 $matches = array_filter($matches, "is_string", ARRAY_FILTER_USE_KEY);
                 //return matches as array [[controller => value], [action => value]] and merge
                 $params = array_merge($matches, $route['params']);
+
+                //check if some parameter is method
+                if(array_key_exists("method", $params)){
+                    //if method is not defined continue
+                    if(strtolower($method) !== strtolower($params["method"])){
+                        continue;
+                    }
+                }
 
                 return $params;
             }

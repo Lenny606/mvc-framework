@@ -45,6 +45,6 @@ $router = require ROOT_PATH . "/config/routes.php";
 $container = require ROOT_PATH . "/config/services.php";
 
 $dispatch = new Dispatcher($router, $container);
-$dispatch->handle($path);
+$dispatch->handle($path, $_SERVER['REQUEST_METHOD']);
 
 //$action === "index" ? $controller_object->index() : $controller_object->show();
