@@ -3,32 +3,70 @@
 namespace Framework;
 
 class MVCTemplateViewer implements TemplateViewerInterface
- {
-    public function render(string $template, array $data = []) : string
+{
+    public function render(string $template, array $data = []): string
     {
-        $code = file_get_contents(dirname(__DIR__, 2) . "/views/$template");
+        $views_directory = dirname(__DIR__,2) . "/views/";
+
+        $code = file_get_contents($views_directory . "$template");
+
+        if (preg_match('#^{% extends "(?<template>.*)" %}#', $code, $matches) === 1) {
+            $base = file_get_contents($views_directory . $matches["template"]);
+
+            $blocks = $this->getBlock($code);
+            $code = $this->replaceYields($base, $blocks);
+        }
+
         //php code for execution
-        $code= $this->replaceVariables($code);
-        $code= $this->replacePHP($code);
+        $code = $this->replaceVariables($code);
+        $code = $this->replacePHP($code);
 
         //creates variables from array
-        extract($data,EXTR_SKIP);
+        extract($data, EXTR_SKIP);
 
         //buffers the template and return all content
         ob_start();
         //require __DIR__ . "/../../views/$template";
         //using instead eval()
-        eval("?>".$code);
+        eval("?>" . $code);
 
         return ob_get_clean();
     }
 
-    private function replaceVariables(string $code){
-       return preg_replace('#{{\s*(\S+)\s*}}#', "<?= htmlspecialchars(\$$1) ?>", $code);
+    private function replaceVariables(string $code) : string
+    {
+        return preg_replace('#{{\s*(\S+)\s*}}#', "<?= htmlspecialchars(\$$1) ?>", $code);
     }
 
-    private function replacePHP(string $code){
+    private function replacePHP(string $code) : string
+    {
         return preg_replace('#{%\s*(.+)\s*%}#', "<?php $1 ?>", $code);
     }
 
+    private function getBlock(string $code) : array
+    {
+        preg_match_all("#{% block (?<name>\w+) %}(?<content>.*?){% endblock %}#s", $code, $matches, PREG_SET_ORDER);
+
+        $blocks = array();
+
+        foreach ($matches as $match){
+            $blocks[$match["name"]] = $match["content"];
+        }
+
+        return $blocks;
+    }
+
+    private function replaceYields(string $code, array $blocks) : string
+    {
+        preg_match_all("#{% yield (?<name>\w+) %}#", $code, $matches, PREG_SET_ORDER);
+
+        foreach ($matches as $match){
+           $name = $match["name"];
+           $block = $blocks[$name];
+
+           $code = preg_replace("#{% yield $name %}#", $block, $code);
+        }
+
+        return $code;
+    }
 }
