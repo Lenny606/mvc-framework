@@ -42,6 +42,10 @@ $dispatch = new Dispatcher($router, $container);
 
 //$request = new \Framework\Request($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 $request = Request::createFromGlobals(); //static method instead object
-$dispatch->handle($request);
+
+//returns the response object form dispatcher/action method
+$response = $dispatch->handle($request);
+//method send outputs response
+$response->send();
 
 //$action === "index" ? $controller_object->index() : $controller_object->show();

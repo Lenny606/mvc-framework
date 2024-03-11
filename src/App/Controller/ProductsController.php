@@ -7,6 +7,7 @@ use Framework\Controller;
 use Framework\Exceptions\PageNotFoundException;
 use Framework\Request;
 use Framework\PHPTemplateViewer;
+use Framework\Response;
 
 class  ProductsController extends Controller
 {
@@ -19,27 +20,26 @@ class  ProductsController extends Controller
     {
     }
 
-    public function index()
+    public function index(): Response
     {
 
         $products = $this->newModel->findAll();
 
         //loads content before rendering with viewer
-
 //        echo $this->viewer->render("shared/header.php", );
-        echo $this->viewer->render("Products/index.mvc.php", [
+        return $this->view("Products/index.mvc.php", [
             "title" => "Products",
             "products" => $products,
             "total" => $this->newModel->getTotalCount()
         ]);
     }
 
-    public function show(string $id)
+    public function show(string $id): Response
     {
         $product = $this->getProduct($id);
 
-      //  echo $this->viewer->render("shared/header.php", ["title" => "Product $id"]);
-        echo $this->viewer->render("Products/show.mvc.php", ["id" => $id, "product" => $product]);
+        //  echo $this->viewer->render("shared/header.php", ["title" => "Product $id"]);
+        return $this->view("Products/show.mvc.php", ["id" => $id, "product" => $product]);
     }
 
     public function showPage(string $title, string $id, string $page)
@@ -48,13 +48,13 @@ class  ProductsController extends Controller
     }
 
 
-    public function new()
+    public function new(): Response
     {
-       // echo $this->viewer->render("shared/header.php", ["title" => "New Product"]);
-        echo $this->viewer->render("Products/new.mvc.php", ["title" => "New Product"]);
+        // echo $this->viewer->render("shared/header.php", ["title" => "New Product"]);
+        return $this->view("Products/new.mvc.php", ["title" => "New Product"]);
     }
 
-    public function create()
+    public function create(): Response
     {
         $data = [
             "name" => $this->request->post["name"],
@@ -62,11 +62,10 @@ class  ProductsController extends Controller
         ];
 
         if ($this->newModel->create($data)) {
-            header("Location: /products/{$this->newModel->getInsertId()}/show");
-            exit;
+            return $this->redirect("/products/{$this->newModel->getInsertId()}/show");
         } else {
-          //  echo $this->viewer->render("shared/header.php", ["title" => "New Product"]);
-            echo $this->viewer->render("Products/new.mvc.php", [
+            //  echo $this->viewer->render("shared/header.php", ["title" => "New Product"]);
+            return $this->view("Products/new.mvc.php", [
                 "title" => "New Product",
                 'errors' => $this->newModel->getError(),
                 'product' => $data
@@ -74,15 +73,15 @@ class  ProductsController extends Controller
         }
     }
 
-    public function edit(string $id)
+    public function edit(string $id): Response
     {
         $product = $this->getProduct($id);
 
-      //  echo $this->viewer->render("shared/header.php", ["title" => "Edit Product $id"]);
-        echo $this->viewer->render("Products/edit.mvc.php", ["id" => $id, "product" => $product]);
+        //  echo $this->viewer->render("shared/header.php", ["title" => "Edit Product $id"]);
+        return $this->view("Products/edit.mvc.php", ["id" => $id, "product" => $product]);
     }
 
-    public function update($id)
+    public function update($id): Response
     {
         $product = $this->getProduct($id);
 
@@ -90,11 +89,11 @@ class  ProductsController extends Controller
         $product["description"] = empty($this->request->post["description"]) ? null : $this->request->post["description"];
 
         if ($this->newModel->update($id, $product)) {
-            header("Location: /products/{$id}/show");
-            exit;
+            return $this->redirect("/products/{$id}/show");
+
         } else {
 //            echo $this->viewer->render("shared/header.php", ["title" => "Edit Product"]);
-            echo $this->viewer->render("Products/edit.mvc.php", [
+            return $this->view("Products/edit.mvc.php", [
                 'errors' => $this->newModel->getError(),
                 'product' => $product
             ]);
@@ -108,25 +107,23 @@ class  ProductsController extends Controller
         return $product;
     }
 
-    public function delete(string $id)
+    public function delete(string $id): Response
     {
         $product = $this->getProduct($id);
 
-       // echo $this->viewer->render("shared/header.php", ["title" => "Delete Product"]);
-        echo $this->viewer->render("Products/delete.mvc.php", [
+        // echo $this->viewer->render("shared/header.php", ["title" => "Delete Product"]);
+        return $this->view("Products/delete.mvc.php", [
             'errors' => $this->newModel->getError(),
             'product' => $product
         ]);
     }
 
-    public function destroy($id) {
+    public function destroy($id): Response
+    {
         $product = $this->getProduct($id);
 
+        $this->newModel->delete($id);
 
-            $this->newModel->delete($id);
-
-            header("Location: /products/index");
-            exit;
-
+        return $this->redirect("/products/index");
     }
 }

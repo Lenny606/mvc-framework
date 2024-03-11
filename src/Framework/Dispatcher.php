@@ -16,7 +16,7 @@ class Dispatcher
 
     }
 
-    public function handle(Request $request)
+    public function handle(Request $request): Response
     {
         $path = $this->getPath($request->uri);
 //matches stripped path with added routes
@@ -30,6 +30,7 @@ class Dispatcher
         $controller_object = $this->container->get($controller);
 
         $controller_object->setRequest($request);
+        $controller_object->setResponse($this->container->get(Response::class));
         $controller_object->setViewer($this->container->get(TemplateViewerInterface::class));
 
 //        if ($controller === "products") {
@@ -45,7 +46,9 @@ class Dispatcher
 
 
         $args = $this->getActionArguments($controller, $action, $params);
-        $controller_object->$action(...$args);
+
+        //returns resposnse object from method
+        return $controller_object->$action(...$args);
     }
 
     public function getActionArguments(string $controller, string $action, array $params): array
