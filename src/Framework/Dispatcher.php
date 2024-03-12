@@ -2,6 +2,7 @@
 
 namespace Framework;
 
+use App\Middleware\ChangeResponse;
 use App\Model\Product;
 use Framework\Exceptions\PageNotFoundException;
 use UnexpectedValueException;
@@ -29,7 +30,8 @@ class Dispatcher
 
         $controller_object = $this->container->get($controller);
 
-        $controller_object->setRequest($request);
+        //moved to Request Handler
+//$controller_object->setRequest($request);
         $controller_object->setResponse($this->container->get(Response::class));
         $controller_object->setViewer($this->container->get(TemplateViewerInterface::class));
 
@@ -47,8 +49,16 @@ class Dispatcher
 
         $args = $this->getActionArguments($controller, $action, $params);
 
-        //returns resposnse object from method
-        return $controller_object->$action(...$args);
+        //returns response object from method, refactored that MW can be used
+        //return $controller_object->$action(...$args);
+
+        $controller_handler = new ControllerRequestHandler(
+            $controller_object, $action, $args
+        );
+//        return $controller_handler->handle($request);
+
+        $middleware = $this->container->get(ChangeResponse::class);
+        return $middleware->process($request, $controller_handler);
     }
 
     public function getActionArguments(string $controller, string $action, array $params): array
