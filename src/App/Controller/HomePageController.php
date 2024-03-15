@@ -11,7 +11,7 @@ class HomePageController extends Controller
     {
         //instead object set PHPTemplateViewer in front controller
 //        $viewer = new PHPTemplateViewer();
-        echo $this->viewer->render("shared/header.php", ["title" => "Home"]);
-        echo $this->viewer->render("Home/homepage.php");
+      //  echo $this->viewer->render("shared/header.php", ["title" => "Home"]);
+        return $this->view("Home/homepage.php");
     }
 }

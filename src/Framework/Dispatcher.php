@@ -2,6 +2,7 @@
 
 namespace Framework;
 
+use App\Middleware\ChangeRequestExample;
 use App\Middleware\ChangeResponse;
 use App\Model\Product;
 use Framework\Exceptions\PageNotFoundException;
@@ -12,7 +13,8 @@ class Dispatcher
 
     public function __construct(
         private Router    $router,
-        private Container $container)
+        private Container $container,
+        private array     $middleware_classes)
     {
 
     }
@@ -23,7 +25,7 @@ class Dispatcher
 //matches stripped path with added routes
         $params = $this->router->match($path, $request->method);
         if (!$params) {
-            throw new PageNotFoundException('No route matched for ' .$path . " with ". $request->method);
+            throw new PageNotFoundException('No route matched for ' . $path . " with " . $request->method);
         }
         $action = $this->getActionName($params);
         $controller = $this->getControllerName($params);
@@ -57,8 +59,37 @@ class Dispatcher
         );
 //        return $controller_handler->handle($request);
 
-        $middleware = $this->container->get(ChangeResponse::class);
-        return $middleware->process($request, $controller_handler);
+        //replace for function getMiddleware() that returns []
+//        $middleware = $this->container->get(ChangeResponse::class);
+//        $middleware2 = $this->container->get(ChangeRequestExample::class);
+
+        $middlewares = $this->getMiddleware($params);
+
+        $middleware_handler = new MiddlewareRequestHandler(
+            $middlewares, $controller_handler);
+
+        return $middleware_handler->handle($request);
+    }
+
+    public function getMiddleware(array $params): array
+    {
+        if( !array_key_exists('middleware', $params)){
+            return array();
+        }
+
+        $middlewares = explode("|", $params['middleware']);
+
+        //references items in middlewares array variable
+        array_walk($middlewares, function(&$value){
+            //fullyqualified middleware name
+            if(!$value = $this->middleware_classes[$value]){
+                throw new \http\Exception\UnexpectedValueException("Middleware $value does not exist");
+            }
+            //returns object of middleware
+            $value = $this->container->get($value);
+        });
+
+        return $middlewares;
     }
 
     public function getActionArguments(string $controller, string $action, array $params): array

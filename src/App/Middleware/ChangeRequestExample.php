@@ -7,16 +7,15 @@ use Framework\Request;
 use Framework\RequestHandlerInterface;
 use Framework\Response;
 
-class ChangeResponse implements MiddlewareInterface
+class ChangeRequestExample implements MiddlewareInterface
 {
  public function process(Request $request, RequestHandlerInterface $next) : Response
  {
+     //trims values inside request before are sent to dtb
+     $request->post = array_map("trim", $request->post);
+
      $response = $next->handle($request);
 
-     $response->setBody($response->getBody() . " Hello from MW");
-
      return $response;
-
-
  }
 }

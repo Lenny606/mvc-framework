@@ -9,7 +9,7 @@ $router->add('/product/{slug:[\w-]+}', ['controller' => 'products', 'action' => 
 //$router->add('/{controller}/{id:\d+}/{action}'); too generic
 
 //routes for CRUD http requests
-$router->add('/{controller}/{id:\d+}/show', ['action' => 'show']);
+$router->add('/{controller}/{id:\d+}/show', ['action' => 'show', 'middleware' => "deny|message"]);
 $router->add('/{controller}/{id:\d+}/edit', ['action' => 'edit']);
 $router->add('/{controller}/{id:\d+}/update', ['action' => 'update']);
 $router->add('/{controller}/{id:\d+}/delete', ['action' => 'delete']);
